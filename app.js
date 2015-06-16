@@ -110,6 +110,12 @@ app.namespace("/node-zk",function(){
     app.get("/create",function(req,res){
         res.render("create",{layout:false,user: req.session.user});
     });
+    //go to create view
+    app.get("/add",function(req,res){
+        var path=req.query.path || "/";
+        res.render('create', {layout:false, 'path':path, user: req.session.user});
+        
+    });
 
     //create
     app.post("/create",function(req,res){

@@ -112,7 +112,7 @@
                 </div>
                 <label>Path:</label> <h4><%= path %> &nbsp;&nbsp; 
                   <% if(user){ %>
-                  <a href='#' onclick="delete_path();">delete</a>
+                  <a href='#' onclick="delete_path();">delete</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/node-zk/add?path=<%= path %>" target="content">create</a>
                   <form id='delete_form' onsubmit="return;">
                     <input type='hidden' name='path' value='<%= path %>'/>
                     <input type='hidden' name='version' value='<%= stat.version %>'/>

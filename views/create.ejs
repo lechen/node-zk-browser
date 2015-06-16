@@ -38,10 +38,10 @@
                 });
                 $("#create_node").click(function(e){
                     // check path
-                    var node_path=$.trim($("#path").val());
+                    var node_path=$.trim($("#nodename").val());
                     if(node_path == undefined || node_path == '' || node_path == null || node_path == 'null'){
-                        alert('node path is empty!');
-                        $("#path").focus();
+                        alert('node name is empty!');
+                        $("#nodename").focus();
                         return false;
                     }
                     var check_result = checkData();
@@ -55,6 +55,7 @@
                         var compress_data = JSONDATA.compressJsonData(temp_value);
                         $('#data').val(compress_data);
                     }
+                    $('#path').val($.trim($("#parentpath").val()) + '/' + node_path);
                     
                     $("#nodeForm").submit();
                  });
@@ -86,8 +87,12 @@
       <form action="/node-zk/create" method="post" id="nodeForm">
         <table class= "table table-bordered">
           <tr>
-           <td>Path </td>
-           <td><input type='text' name="path" id='path' style="width:650px;"> </td>
+           <td>Parent Path<input type='hidden' name='parentpath' id='parentpath' value='<%= path %>'/></td>
+           <td><%= path %><input type='hidden' name='path' id='path'/></td>
+          </tr>
+          <tr>
+           <td>Node Name </td>
+           <td><input type='text' name="nodename" id='nodename' style="width:650px;"> </td>
           </tr>
          <tr>
            <td>Data</td>
