@@ -1,6 +1,9 @@
 <html>
         <head>
           <script type="text/javascript" src="lib/jquery.js"></script>
+          <script type="text/javascript" src="lib/jsl.parser.js"></script>
+          <script type="text/javascript" src="lib/json2.js"></script>
+          <script type="text/javascript" src="lib/dataformate.js"></script>
           <script type="text/javascript">
             $.ajaxSetup({cache:false});
             function login(){
@@ -11,60 +14,86 @@
                     form.hide();
                 }
             }
-             function delete_path(){
-                  var path=$('#delete_form').find("input[name='path']").val();
-                  var lastPartIndex=path.lastIndexOf("/");
-                  var parenPath=path.substring(0,lastPartIndex);
+            function delete_path(){
+                var path=$('#delete_form').find("input[name='path']").val();
+                var lastPartIndex=path.lastIndexOf("/");
+                var parenPath=path.substring(0,lastPartIndex);
 
-                  if(confirm("Are you sure want to delete "+path+"?")){
-                        $.post("/node-zk/delete",$('#delete_form').serialize(),function(rt){
-                            alert(rt);
-                            if(rt=='Delete ok'){
-                               $(parent.document.body).find('#tree').attr('src', "/node-zk/tree?path="+parenPath);
-                               window.location.href="/node-zk/get?path="+parenPath;
-                            }
-                        });
-                  }
-             }
-
-            var editing=false;
-            function edit(){
-               <% if(user) { %>
-               if(!editing){
-                 editing=true;
-                 var value=$("#data").val();
-                 $("#data_container").html("<form id='edit_form'>"+
-                                          "<input type='hidden' name='path' value='<%= path %>'/>"+
-                                          "<input type='hidden' name='version' value='<%= stat.version %>'/>"+
-                                          "<table><tr><td colspan='2'><textarea cols='90' rows='10' name='new_data' id='new_data'>"+value+"</textarea></td></tr>"+
-                                          "<tr><td colspan='2'><input type='submit' value='Save' id='save_data'/></td></tr>"+
-                                          "</table></form>");
-
-                $("#new_data").focus();
-                $("#save_data").click(function(e){
-                      var new_data=$("#new_data").val();
-                      if(new_data!=value){
-                            $.post("/node-zk/edit",$("#edit_form").serialize(),function(data){
-                                 alert(data);
-                                 window.location.href="/node-zk/get?path=<%= path %>";
-                            });
-                      }else
-                            $("#data_container").html(value);
-                      editing=false;
-                      return false;
-                 });
-               }
-             <% } else { %>
-               alert ("Please sign in first.");
-            <% } %>
+                if(confirm("Are you sure want to delete "+path+"?")){
+                    $.post("/node-zk/delete",$('#delete_form').serialize(),function(rt){
+                        alert(rt);
+                        if(rt=='Delete ok'){
+                           $(parent.document.body).find('#tree').attr('src', "/node-zk/tree?path="+parenPath);
+                           window.location.href="/node-zk/get?path="+parenPath;
+                        }
+                    });
+                }
             }
 
+            var old_value = '';
+            var temp_value = '';
+            function checkData(){
+                 var nodeValue=$.trim($("#new_data").val());
+                 if(nodeValue != undefined && nodeValue != '' && nodeValue != null && nodeValue != 'null'){
+                     var check_value = JSONDATA.formatJsonData(nodeValue);
+                     if (check_value != '') {
+                        $('#new_data').val(check_value);
+                     } else {
+                        return false;
+                     }
+                 }
+                 return true;
+            }
+            window.onload=function(){
+                // old value
+                var old_value=$.trim($("#data").val());
+                // initial data to json formate
+                if(old_value != undefined && old_value != '' && old_value != null && old_value != 'null'){
+                    temp_value = JSONDATA.formatJsonData(old_value);
+                    if (temp_value != '') {
+                       $('#new_data').val(temp_value);
+                    }
+                }
+                // bind click event
+                $("#check_data").click(function(e){
+                    var check_result = checkData();
+                    if(check_result){
+                        // 
+                    }
+                    $("#new_data").focus();
+                });
+                $("#save_data").click(function(e){
+                    
+                    var check_result = checkData();
+                    if( !check_result ){
+                        $("#new_data").focus();
+                        return false;
+                    }
+                    temp_value = $.trim($("#new_data").val());
+                    var compress_data = '';
+                    if(temp_value!=undefined && temp_value!='' && temp_value!=null && temp_value!="null"){
+                        compress_data = JSONDATA.compressJsonData(temp_value);
+                    }
+
+                    // compare compressed value
+                    if(compress_data != old_value){
+
+                          $('#new_data').val(compress_data);
+                          $.post("/node-zk/edit",$("#edit_form").serialize(),function(data){
+                               alert(data);
+                               window.location.href="/node-zk/get?path=<%= path %>";
+                          });
+                    }
+                    return false;
+                });
+            } 
+            
           </script>
-		  <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
-		  <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
+          <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+          <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
         <head>
         <body>
-		  <div class= "container">
+          <div class= "container">
                 <div id='login'>
                   <% if(user) { %>
                     <h3>Welcome,<%= user %> </h3>
@@ -72,9 +101,9 @@
                       <a href='#' onclick='login();'><label>Signin</label></a>
                       <div id='login_form' style='display:none;'>
                          <form method="post" action="/node-zk/login">
-						   <label>Username</label>
+                           <label>Username</label>
                            <input type="text" name="user[name]" />
-						   <label>Password</label>
+                           <label>Password</label>
                            <input type="password" name="user[password]" />
                            <input type="submit" value="Submit" />
                          </form>
@@ -89,8 +118,8 @@
                     <input type='hidden' name='version' value='<%= stat.version %>'/>
                   </form>
                 <% } %>
-				  </h4>
-				<label>Stat:</label>
+                  </h4>
+                <label>Stat:</label>
                 <table class= "table table-bordered">
                    <tr>
                      <td>name</td>
@@ -103,15 +132,28 @@
                    </tr>
                    <%} %>
                 </table>
-                <label>Data (Click on the value to edit it) : </label>
+                <hr/>
+                <label>Data : </label>
                 <input type='hidden' value='<%= data %>' id='data' />
-                <div id='data_container' onclick='edit();'>
-				  <% if (data && data != ''){ %>
-                  <%= data %>
-				  <% } else {%>
-				     NO DATA OR EMPTY VALUE
-                 <% } %>
+                <div id='data_container' >
+                
+                    <form id='edit_form'>
+                        <input type='hidden' name='path' value='<%= path %>'/>
+                        <input type='hidden' name='version' value='<%= stat.version %>'/>
+                        <table>
+                  <% if(user){ %>
+                        <tr><td colspan='2'><textarea cols='90' rows='15' name='new_data' id='new_data'></textarea></td></tr>
+                        <tr>
+                            <td colspan="1"><input type='button' id='check_data' value="Check data"/></td>
+                            <td colspan='1'><input type='submit' value='Save' id='save_data'/></td>
+                        </tr>
+                  <% }else{ %>
+                        <tr><td colspan='2'><textarea cols='90' rows='15' name='new_data' id='new_data' readonly='readonly'></textarea></td></tr>
+                  <% } %>
+                        </table>
+                    </form>
+
                 </div>
-			</div>
+            </div>
         </body>
 </html>

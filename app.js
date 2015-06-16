@@ -84,7 +84,8 @@ app.namespace("/node-zk",function(){
         var user=req.body.user;
         if(users[user.name]==user.password){
             req.session.user=user.name
-            req.session.cookie.maxAge=5*60*1000;
+            // 1 hour
+            req.session.cookie.maxAge=60*60*1000;
         }
         res.redirect(req.header('Referer'));
     });

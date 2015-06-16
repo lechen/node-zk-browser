@@ -1,6 +1,9 @@
 <html>
    <head><title>Create path</title>
          <script type="text/javascript" src="lib/jquery.js"></script>
+         <script type="text/javascript" src="lib/jsl.parser.js"></script>
+         <script type="text/javascript" src="lib/json2.js"></script>
+         <script type="text/javascript" src="lib/dataformate.js"></script>
          <script type="text/javascript">
             $.ajaxSetup({cache:false});
             function login(){
@@ -11,12 +14,57 @@
                     form.hide();
                 }
             }
+
+            var temp_value = '';
+            function checkData(){
+                 var nodeValue=$.trim($("#data").val());
+                 if(nodeValue != undefined && nodeValue != '' && nodeValue != null && nodeValue != 'null'){
+                     temp_value = JSONDATA.formatJsonData(nodeValue);
+                     if (temp_value != '') {
+                        $('#data').val(temp_value);
+                     } else {
+                        return false;
+                     }
+                 }
+                 return true;
+            }
+            window.onload=function(){
+                $("#check_data").click(function(e){
+                    var check_result = checkData();
+                    if(check_result){
+                        // 
+                    }
+                    $("#data").focus();
+                });
+                $("#create_node").click(function(e){
+                    // check path
+                    var node_path=$.trim($("#path").val());
+                    if(node_path == undefined || node_path == '' || node_path == null || node_path == 'null'){
+                        alert('node path is empty!');
+                        $("#path").focus();
+                        return false;
+                    }
+                    var check_result = checkData();
+                    if( !check_result ){
+                        $("#data").focus();
+                        return false;
+                    }
+                    
+                    temp_value=$.trim($("#data").val());
+                    if(temp_value!=undefined && temp_value!='' && temp_value!=null && temp_value!="null"){
+                        var compress_data = JSONDATA.compressJsonData(temp_value);
+                        $('#data').val(compress_data);
+                    }
+                    
+                    $("#nodeForm").submit();
+                 });
+            } 
          </script>
-		  <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
-		  <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
+                  <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+                  <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
    </head>
    <body>
-	 <div class= "container">
+         <div class= "container">
      <div id='login'>
        <% if(user) { %>
        <h3>Welcome,<%= user %> </h3>
@@ -24,9 +72,9 @@
        <a href='#' onclick='login();'><label>Signin</label></a>
        <div id='login_form' style='display:none;'>
          <form method="post" action="/node-zk/login">
-		   <label>Username</label>
+                   <label>Username</label>
            <input type="text" name="user[name]" />
-		   <label>Password</label>
+                   <label>Password</label>
            <input type="password" name="user[password]" />
            <input type="submit" value="Submit" />
          </form>
@@ -35,15 +83,15 @@
      </div>
      </br>
      <div>
-      <form action="/node-zk/create" method="post">
+      <form action="/node-zk/create" method="post" id="nodeForm">
         <table class= "table table-bordered">
           <tr>
            <td>Path </td>
-           <td><input type='text' name="path"> </td>
+           <td><input type='text' name="path" id='path' style="width:650px;"> </td>
           </tr>
          <tr>
            <td>Data</td>
-           <td><input type='text' name="data"> </td>
+           <td><textarea cols='90' rows='20' name='data' id='data'></textarea></td>
         </tr>
         <tr>
           <td>Type</td>
@@ -55,11 +103,16 @@
           </td>
         </tr>
         <tr>
-          <td colspan="2"><input type='submit' value="Create"/></td>
+          <td colspan="1"><input type='button' id='check_data' value="Check data"/></td>
+        <% if(user){ %>
+          <td colspan="1"><input type='submit' id='create_node' value="Create"/></td>
+        <% }else{ %>
+          <td colspan="1"><input type='submit' id='create_node' value="Create" disabled='disabled'/></td>
+        <% } %>
         </tr>
        <table>
      </form>
-	  </container>
+          </container>
      </div>
    </body>
 </html>
