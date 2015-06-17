@@ -55,7 +55,12 @@
                         var compress_data = JSONDATA.compressJsonData(temp_value);
                         $('#data').val(compress_data);
                     }
-                    $('#path').val($.trim($("#parentpath").val()) + '/' + node_path);
+                    var parent_path = $.trim($("#parentpath").val());
+                    if (parent_path === '/') {
+                        $('#path').val('/' + node_path);
+                    } else {
+                        $('#path').val(parent_path + '/' + node_path);
+                    }
                     
                     $("#nodeForm").submit();
                  });
@@ -63,6 +68,7 @@
          </script>
                   <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
                   <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
+                  <link rel='stylesheet', href='stylesheets/style.css'/>
    </head>
    <body>
          <div class= "container">
@@ -70,7 +76,7 @@
        <% if(user) { %>
        <h3>Welcome,<%= user %> </h3>
        <% }else{ %>
-       <a href='#' onclick='login();'><label>Signin</label></a>
+       <a href='#' onclick='login();' class="btnStyle">Login</a>
        <div id='login_form' style='display:none;'>
          <form method="post" action="/node-zk/login">
                    <label>Username</label>
@@ -87,32 +93,33 @@
       <form action="/node-zk/create" method="post" id="nodeForm">
         <table class= "table table-bordered">
           <tr>
-           <td>Parent Path<input type='hidden' name='parentpath' id='parentpath' value='<%= path %>'/></td>
+           <td>Parent Path:<input type='hidden' name='parentpath' id='parentpath' value='<%= path %>'/></td>
            <td><%= path %><input type='hidden' name='path' id='path'/></td>
           </tr>
           <tr>
-           <td>Node Name </td>
+           <td>Node Name :</td>
            <td><input type='text' name="nodename" id='nodename' style="width:650px;"> </td>
           </tr>
          <tr>
-           <td>Data</td>
-           <td><textarea cols='90' rows='20' name='data' id='data'></textarea></td>
+           <td>Data (JSON format) :</td>
+           <td><textarea cols='90' rows='20' name='data' id='data' style="width:650px;"
+                spellcheck="false" placeholder="Please enter JSON format data."></textarea></td>
         </tr>
         <tr>
-          <td>Type</td>
+          <td>Type :</td>
           <td>
-         PERSISTENT&nbsp;<input type='radio' name='flag' value="0" checked="true"/></br>
-         PERSISTENT_SEQUENTIAL&nbsp;<input type='radio' name='flag' value="2"/> </br>
-         EPHEMERAL&nbsp;<input type='radio' name='flag' value="1"/> </br>
-         EPHEMERAL_SEQUENTIAL&nbsp;<input type='radio' name='flag' value="3"/> </br>
+            <input type='radio' name='flag' value="0" checked="true"/>&nbsp;PERSISTENT</br>
+            <input type='radio' name='flag' value="2"/>&nbsp;PERSISTENT_SEQUENTIAL</br>
+            <input type='radio' name='flag' value="1"/>&nbsp;EPHEMERAL</br>
+            <input type='radio' name='flag' value="3"/>&nbsp;EPHEMERAL_SEQUENTIAL</br>
           </td>
         </tr>
         <tr>
-          <td colspan="1"><input type='button' id='check_data' value="Check data"/></td>
+          <td colspan="1"><input type='button' id='check_data' value="Check data" class="btnStyle"/></td>
         <% if(user){ %>
-          <td colspan="1"><input type='submit' id='create_node' value="Create"/></td>
+          <td colspan="1"><input type='submit' id='create_node' value="Create" class="btnStyle"/></td>
         <% }else{ %>
-          <td colspan="1"><input type='submit' id='create_node' value="Create" disabled='disabled'/></td>
+          <td colspan="1"><input type='submit' id='create_node' value="Create" disabled='disabled' class="btnStyle"/></td>
         <% } %>
         </tr>
        <table>

@@ -19,7 +19,7 @@
                 theme_name : "classic"
             },
             lang : {
-                loading : "目录加载中……"
+                loading : "Directory loading......"
             },
             types : {
                 "default" : {
@@ -50,15 +50,21 @@
          window.location.href='/node-zk/tree?path='+searchPath;
          $(parent.document.body).find('#content').attr('src', "/node-zk/get?path="+searchPath);
      }
+    var zkhosts = '<%= host %>';
+    window.onload=function(){
+        var splitstr= new Array();
+        splitstr=zkhosts.split(',');
+        $("#zkhosts").append(splitstr.join('<br/>'));
+    }
 </script>
+<link rel='stylesheet', href='stylesheets/style.css'/>
 <div id="container">
      <h2><a target="_blank" href="https://github.com/killme2008/node-zk-browser" style='text-decoration:none;'>Node-ZK-Browser</a></h2>
-    <div><%= host %></div>
+     <div>ZK Cluster :</div>
+     <div style='margin-bottom:25px;margin-top:5px;' id='zkhosts'></div>
      <div>
-     </div>
-     <div>
-         <input type="text" id="search_path" value='<%= path %>'/>
-         <input type="button" id="search_op" onclick="searchnodes()" value="Search" />
+         <input type="text" id="search_path" value='<%= path %>' style='height:30px;font-size:18px;'/>
+         <input type="button" id="search_op" onclick="searchnodes()" value="Goto" class="btnStyle"/>
      </div>
      <div id="zkTree"></div>
 </div>

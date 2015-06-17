@@ -29,6 +29,16 @@
                     });
                 }
             }
+            function show_detail(){
+                var detail_info=$("#node_detail")
+                if(detail_info.is(":hidden")){
+                    detail_info.show();
+                    $("#show_detail").text('hide');
+                }else{
+                    detail_info.hide();
+                    $("#show_detail").text('show detail');
+                }
+            }
 
             var old_value = '';
             var temp_value = '';
@@ -52,6 +62,8 @@
                     temp_value = JSONDATA.formatJsonData(old_value);
                     if (temp_value != '') {
                        $('#new_data').val(temp_value);
+                    } else {
+                       $('#new_data').val(old_value);
                     }
                 }
                 // bind click event
@@ -91,6 +103,7 @@
           </script>
           <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
           <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
+          <link rel='stylesheet', href='stylesheets/style.css'/>
         <head>
         <body>
           <div class= "container">
@@ -98,7 +111,7 @@
                   <% if(user) { %>
                     <h3>Welcome,<%= user %> </h3>
                   <% }else{ %>
-                      <a href='#' onclick='login();'><label>Signin</label></a>
+                      <a href='#' onclick='login();' class="btnStyle">Login</a>
                       <div id='login_form' style='display:none;'>
                          <form method="post" action="/node-zk/login">
                            <label>Username</label>
@@ -110,17 +123,25 @@
                       </div>
                   <% } %>
                 </div>
-                <label>Path:</label> <h4><%= path %> &nbsp;&nbsp; 
-                  <% if(user){ %>
-                  <a href='#' onclick="delete_path();">delete</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/node-zk/add?path=<%= path %>" target="content">create</a>
-                  <form id='delete_form' onsubmit="return;">
-                    <input type='hidden' name='path' value='<%= path %>'/>
-                    <input type='hidden' name='version' value='<%= stat.version %>'/>
-                  </form>
-                <% } %>
-                  </h4>
-                <label>Stat:</label>
                 <table class= "table table-bordered">
+                   <tr>
+                     <td><label style="font-weight:bold;">Path:</label></td>
+                     <td><span style="font-weight:bold;"><%= path %></span>
+                        <% if(user){ %>
+                            <a href='#' onclick="delete_path();" class="btnStyle">delete</a><a href="/node-zk/add?path=<%= path %>" target="content" class="btnStyle">create</a>
+                            <form id='delete_form' onsubmit="return;">
+                            <input type='hidden' name='path' value='<%= path %>'/>
+                            <input type='hidden' name='version' value='<%= stat.version %>'/>
+                            </form>
+                        <% } %>
+                     </td>
+                   </tr>
+                   <tr>
+                     <td><label>Node Stat:</label></td>
+                     <td><a href='#' id='show_detail' onclick="show_detail();" class="btnStyle">show detail</a></td>
+                   </tr>
+                </table>
+                <table class= "table table-bordered" id='node_detail' style='display:none;'>
                    <tr>
                      <td>name</td>
                      <td>value</td>
@@ -133,7 +154,7 @@
                    <%} %>
                 </table>
                 <hr/>
-                <label>Data : </label>
+                <label>Data (JSON format): </label>
                 <input type='hidden' value='<%= data %>' id='data' />
                 <div id='data_container' >
                 
@@ -142,13 +163,14 @@
                         <input type='hidden' name='version' value='<%= stat.version %>'/>
                         <table>
                   <% if(user){ %>
-                        <tr><td colspan='2'><textarea cols='90' rows='15' name='new_data' id='new_data'></textarea></td></tr>
+                        <tr><td colspan='1'><textarea cols='90' rows='15' name='new_data' id='new_data' style="width:650px;"
+                            spellcheck="false" placeholder="NO DATA OR EMPTY VALUE. can enter JSON format data."></textarea></td></tr>
                         <tr>
-                            <td colspan="1"><input type='button' id='check_data' value="Check data"/></td>
-                            <td colspan='1'><input type='submit' value='Save' id='save_data'/></td>
+                            <td colspan="1"><input type='button' id='check_data' value="Check data" class="btnStyle"/><input type='submit' value='Save' id='save_data' class="btnStyle" style="margin-left:20px;"/></td>
                         </tr>
                   <% }else{ %>
-                        <tr><td colspan='2'><textarea cols='90' rows='15' name='new_data' id='new_data' readonly='readonly'></textarea></td></tr>
+                        <tr><td colspan='1'><textarea cols='90' rows='15' name='new_data' id='new_data' style="width:650px;" readonly='readonly'
+                            spellcheck="false" placeholder="NO DATA OR EMPTY VALUE"></textarea></td></tr>
                   <% } %>
                         </table>
                     </form>

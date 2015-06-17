@@ -12,7 +12,7 @@ if ( !this.JSONDATA) {
                     return JSON.stringify(JSON.parse(jsonVal), null, "    ");
                 }
             } catch (parseException) {
-                alert("data error!");
+                alert("data error! Please enter a JSON format string.");
                 return '';
             }
         };
@@ -25,7 +25,7 @@ if ( !this.JSONDATA) {
                     return JSON.stringify(JSON.parse(jsonVal), null, "");
                 }
             } catch (parseException) {
-                alert("data error!");
+                alert("data error! Please enter a JSON format string.");
                 return "";
             }
         };
