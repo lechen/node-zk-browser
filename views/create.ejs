@@ -129,6 +129,7 @@
                             $(parent.tree.document).contents().find("#zkTree").empty();
                             $(parent.tree.document).contents().find("#zkTree").append(new_content);
                             window.location.href="/node-zk/get?path="+new_node_path;
+                            return;
                         }
                     });
                  });
@@ -158,7 +159,7 @@
      </div>
      </br>
      <div>
-      <form action="/node-zk/create" method="post" id="node_form">
+      <form action="/node-zk/create" method="post" id="node_form" onsubmit="return;">
         <table class= "table table-bordered">
           <tr>
            <td>Parent Path:<input type='hidden' name='parentpath' id='parentpath' value='<%= path %>'/></td>
@@ -185,9 +186,9 @@
         <tr>
           <td colspan="1"><input type='button' id='check_data' value="Check data" class="btnStyle"/></td>
         <% if(user){ %>
-          <td colspan="1"><input type='submit' id='create_node' value="Create" class="btnStyle"/></td>
+          <td colspan="1"><input type='button' id='create_node' value="Create" class="btnStyle"/></td>
         <% }else{ %>
-          <td colspan="1"><input type='submit' id='create_node' value="Create" disabled='disabled' class="btnStyle"/></td>
+          <td colspan="1"><input type='button' id='create_node' value="Create" disabled='disabled' class="btnStyle"/></td>
         <% } %>
         </tr>
        <table>
