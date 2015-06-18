@@ -56,13 +56,81 @@
                         $('#data').val(compress_data);
                     }
                     var parent_path = $.trim($("#parentpath").val());
+                    var new_node_path = parent_path + '/' + node_path;
                     if (parent_path === '/') {
-                        $('#path').val('/' + node_path);
-                    } else {
-                        $('#path').val(parent_path + '/' + node_path);
+                        new_node_path = '/' + node_path;
                     }
-                    
-                    $("#nodeForm").submit();
+                    $('#path').val(new_node_path); 
+
+                    //$("#node_form").submit();
+                    $.post("/node-zk/create",$('#node_form').serialize(),function(rt){
+                        alert(rt);
+                        if(rt=='Create ok'){
+                            //$(parent.document.body).find('#tree').attr('src', "/node-zk/tree?path="+parenPath);
+                            var tree_innerHTML = $.trim($(parent.tree.document).contents().find("#zkTree").html());
+                            //alert(tree_innerHTML);
+                            var to_upper_case = 0;
+                            if (tree_innerHTML.indexOf('</ul>') < 0) {
+                                to_upper_case = 1;
+                            }
+                            var current_node = '<li class="open" rel="chv" path="' + new_node_path + '"><a href="/node-zk/get?path='+new_node_path
+                                    +'"><ins class=ou.png>&nbsp;</ins>'+node_path+'</a></li>';
+                            if (to_upper_case == 1) {
+                                current_node = '<LI class="open" rel="chv" path="' + new_node_path + '"><A href="/node-zk/get?path='+new_node_path
+                                    +'"><INS class=ou.png>&nbsp;</INS>'+node_path+'</A></LI>';
+                            }
+                            if (parent_path === '/') {
+                                tree_innerHTML = tree_innerHTML.substring(0, tree_innerHTML.length - 5) + current_node + tree_innerHTML.substring(tree_innerHTML.length - 5);
+                                $(parent.tree.document).contents().find("#zkTree").empty();
+                                $(parent.tree.document).contents().find("#zkTree").append(tree_innerHTML);
+                                window.location.href="/node-zk/get?path="+new_node_path;
+                                return;
+                            }
+                            var search_path = 'path="'+parent_path+'/';
+                            var index = tree_innerHTML.indexOf(search_path);
+                            var new_content = '';
+                            // parent node do not had other children node
+                            if ( index < 0 ) {
+                                index = tree_innerHTML.indexOf('path="'+parent_path+'"');
+                                var before_part = tree_innerHTML.substring(0, index);
+                                var after_part = tree_innerHTML.substring(index);
+
+                                index = after_part.indexOf("</LI>");
+                                if (index < 0) {
+                                    index = after_part.indexOf("</li>");
+                                }
+                                var ul_start = '<ul>';
+                                var ul_end = '</ul>';
+                                if (to_upper_case == 1) {
+                                    ul_start = ul_start.toUpperCase();
+                                    ul_end = ul_end.toUpperCase();
+                                }
+
+                                before_part = before_part + after_part.substring(0, index);
+                                after_part = after_part.substring(index);
+
+                                new_content = before_part + ul_start + current_node + ul_end+ after_part;
+                            } else {
+                                index = tree_innerHTML.indexOf('path="'+parent_path);
+                                var before_part = tree_innerHTML.substring(0, index);
+                                var after_part = tree_innerHTML.substring(index);
+
+                                index = after_part.indexOf("<UL>");
+                                if (index < 0) {
+                                    index = after_part.indexOf("<ul>");
+                                }
+
+                                before_part = before_part + after_part.substring(0, index + 4);
+                                after_part = after_part.substring(index + 4);
+
+                                new_content = before_part + current_node + after_part;
+                            }
+                            //alert(new_content);
+                            $(parent.tree.document).contents().find("#zkTree").empty();
+                            $(parent.tree.document).contents().find("#zkTree").append(new_content);
+                            window.location.href="/node-zk/get?path="+new_node_path;
+                        }
+                    });
                  });
             } 
          </script>
@@ -83,14 +151,14 @@
            <input type="text" name="user[name]" />
                    <label>Password</label>
            <input type="password" name="user[password]" />
-           <input type="submit" value="Submit" />
+           <input type="submit" value="Submit" class="btnStyle"/>
          </form>
        </div>
        <% } %>
      </div>
      </br>
      <div>
-      <form action="/node-zk/create" method="post" id="nodeForm">
+      <form action="/node-zk/create" method="post" id="node_form">
         <table class= "table table-bordered">
           <tr>
            <td>Parent Path:<input type='hidden' name='parentpath' id='parentpath' value='<%= path %>'/></td>

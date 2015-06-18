@@ -23,8 +23,38 @@
                     $.post("/node-zk/delete",$('#delete_form').serialize(),function(rt){
                         alert(rt);
                         if(rt=='Delete ok'){
-                           $(parent.document.body).find('#tree').attr('src', "/node-zk/tree?path="+parenPath);
-                           window.location.href="/node-zk/get?path="+parenPath;
+                            //$(parent.document.body).find('#tree').attr('src', "/node-zk/tree?path="+parenPath);
+                            var tree_innerHTML = $(parent.tree.document).contents().find("#zkTree").html();
+                            //alert(tree_innerHTML);
+                            var deleted_path = 'path="'+path+'"';
+                            var index = tree_innerHTML.indexOf(deleted_path);
+                            if (index > 0) {
+                                var before_part = tree_innerHTML.substring(0, index);
+                                var after_part = tree_innerHTML.substring(index);
+
+                                index = before_part.lastIndexOf("<LI");
+                                if (index < 0) {
+                                    index = before_part.lastIndexOf("<li");
+                                }
+                                before_part = $.trim(before_part.substring(0, index));
+
+                                index = after_part.indexOf("</LI>");
+                                if (index < 0) {
+                                    index = after_part.indexOf("</li>");
+                                }
+                                after_part = $.trim(after_part.substring(index+5));
+
+                                if ((after_part.substring(0,5) == '</UL>' || after_part.substring(0,5) == '</ul>')
+                                    && (before_part.substring(before_part.length-4) == '<UL>' || before_part.substring(before_part.length-4) == '<ul>')){
+                                    before_part = before_part.substring(0, before_part.length-4);
+                                    after_part = after_part.substring(5);
+                                }
+                                var new_content = before_part + after_part;
+                                //alert(new_content);
+                                $(parent.tree.document).contents().find("#zkTree").empty();
+                                $(parent.tree.document).contents().find("#zkTree").append(new_content);
+                            }
+                            window.location.href="/node-zk/get?path="+parenPath;
                         }
                     });
                 }
@@ -118,7 +148,7 @@
                            <input type="text" name="user[name]" />
                            <label>Password</label>
                            <input type="password" name="user[password]" />
-                           <input type="submit" value="Submit" />
+                           <input type="submit" value="Submit" class="btnStyle" />
                          </form>
                       </div>
                   <% } %>
